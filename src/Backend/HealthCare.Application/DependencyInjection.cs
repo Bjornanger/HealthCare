@@ -1,5 +1,6 @@
 ﻿using HealthCare.Application.Interfaces.RepositoryInterfaces;
 using HealthCare.Application.Interfaces.ServiceInterfaces;
+using HealthCare.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HealthCare.Application;
@@ -9,7 +10,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         
-        services.AddScoped<IProductService, IProductService >();
+        services.AddScoped<IProductService, ProductService >();
 
         return services;
     }

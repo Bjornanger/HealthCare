@@ -10,14 +10,18 @@ namespace HealthCare.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddInfrastructure(builder.Configuration);
             builder.Services.AddApplication();
+            builder.Services.AddInfrastructure(builder.Configuration);
 
+            builder.Services.AddEndpointsApiExplorer();
+            
 
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new() { Title = "HealthCare API", Version = "v1" });
             });
+
+
 
             var app = builder.Build();
 
@@ -27,7 +31,7 @@ namespace HealthCare.Api
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.MapProductEndpointExtensions();
 

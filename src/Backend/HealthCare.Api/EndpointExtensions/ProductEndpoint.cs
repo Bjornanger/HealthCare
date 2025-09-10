@@ -14,7 +14,7 @@ public static class ProductEndpoint
         group.MapPost("/", AddProduct);
         group.MapPut("/{id}", UpdateProduct);
         group.MapDelete("/{id}", DeleteProduct);
-        group.MapPut("/{id}", UpdateProductQuantity);
+        group.MapPut("/{id}/quantity", UpdateProductQuantity);
 
         return app;
     }
