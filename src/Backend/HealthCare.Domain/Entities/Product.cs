@@ -10,5 +10,7 @@ public class Product : IEntity
     public string Name { get; set; }
     [Required]
     public int QuantityInStock { get; set; }
-    
+    public Guid UnitTypeId { get; set; }
+    public UnitType UnitType { get; set; } = null!;
+
 }

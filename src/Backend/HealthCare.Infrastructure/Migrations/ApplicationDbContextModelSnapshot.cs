@@ -35,9 +35,40 @@ namespace HealthCare.Infrastructure.Migrations
                     b.Property<int>("QuantityInStock")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("UnitTypeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UnitTypeId");
+
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("HealthCare.Domain.Models.UnitType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UnitTypes");
+                });
+
+            modelBuilder.Entity("HealthCare.Domain.Models.Product", b =>
+                {
+                    b.HasOne("HealthCare.Domain.Models.UnitType", "UnitType")
+                        .WithMany()
+                        .HasForeignKey("UnitTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UnitType");
                 });
 #pragma warning restore 612, 618
         }
