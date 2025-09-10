@@ -15,6 +15,8 @@ public static class DependencyInjection
             options.UseSqlServer(config.GetConnectionString("HealthCareConnection")));
 
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IUnitTypeRepository, UnitTypeRepository>();
+
 
         return services;
     }
