@@ -1,5 +1,5 @@
 ﻿using System.Runtime.InteropServices.Marshalling;
-using HealthCare.Domain.Models;
+using HealthCare.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace HealthCare.Infrastructure.Data;

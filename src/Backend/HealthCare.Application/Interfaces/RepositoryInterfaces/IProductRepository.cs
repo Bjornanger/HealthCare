@@ -1,4 +1,4 @@
-﻿using HealthCare.Domain.Models;
+﻿using HealthCare.Domain.Entities;
 
 namespace HealthCare.Application.Interfaces.RepositoryInterfaces;
 

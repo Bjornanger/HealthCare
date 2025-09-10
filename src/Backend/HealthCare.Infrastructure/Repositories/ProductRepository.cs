@@ -1,5 +1,5 @@
 ﻿using HealthCare.Application.Interfaces.RepositoryInterfaces;
-using HealthCare.Domain.Models;
+using HealthCare.Domain.Entities;
 using HealthCare.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 

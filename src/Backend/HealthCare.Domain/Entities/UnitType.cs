@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using HealthCare.Domain.Interfaces;
 
-namespace HealthCare.Domain.Models;
+namespace HealthCare.Domain.Entities;
 
 public class UnitType : IEntity
 {

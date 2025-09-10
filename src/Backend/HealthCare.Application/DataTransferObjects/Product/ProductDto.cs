@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using HealthCare.Domain.Interfaces;
+﻿using HealthCare.Domain.Entities;
+using System.ComponentModel.DataAnnotations;
 
-namespace HealthCare.Domain.Entities;
+namespace HealthCare.Application.DataTransferObjects.Product;
 
-public class Product : IEntity
+public class ProductDto
 {
     public Guid Id { get; set; }
     [Required]
@@ -12,5 +12,4 @@ public class Product : IEntity
     public int QuantityInStock { get; set; }
     public Guid UnitTypeId { get; set; }
     public UnitType UnitType { get; set; } = null!;
-
 }
