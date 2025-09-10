@@ -1,37 +1,88 @@
 ﻿using HealthCare.Application.Interfaces.RepositoryInterfaces;
 using HealthCare.Domain.Models;
+using HealthCare.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace HealthCare.Infrastructure.Repositories;
 
 public class ProductRepository : IProductRepository
 {
-    public Task<IEnumerable<Product>> GetAllAsync()
+
+    private readonly ApplicationDbContext _context;
+
+    public ProductRepository(ApplicationDbContext context)
     {
-        throw new NotImplementedException();
+        _context = context;
     }
 
-    public Task<Product> GetByIdAsync(Guid id)
+    public async Task<IEnumerable<Product>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return await _context.Products.Include(p => p.UnitType).ToListAsync();
     }
 
-    public Task AddAsync(Product entity)
+    public async Task<Product?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.Products.Include(p => p.UnitType).FirstOrDefaultAsync(p => p.Id == id);
     }
 
-    public Task<bool> UpdateAsync(Product entity, Guid id)
+    public async Task<Product> AddAsync(Product entity)
     {
-        throw new NotImplementedException();
+        var newProduct = await _context.Products.AddAsync(entity);
+
+        await _context.SaveChangesAsync();
+        return newProduct.Entity;
+
     }
 
-    public Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> UpdateAsync(Product newProduct, Guid oldProductId)
     {
-        throw new NotImplementedException();
+        var productToUpdate = await _context.Products.FirstOrDefaultAsync(p => p.Id == oldProductId);
+
+        if (productToUpdate != null)
+        {
+            productToUpdate.Name = newProduct.Name;
+            productToUpdate.QuantityInStock = newProduct.QuantityInStock;
+            productToUpdate.UnitTypeId = newProduct.UnitTypeId;
+            productToUpdate.UnitType = newProduct.UnitType;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        return false;
     }
 
-    public Task<Product?> UpdateStockQuantity(Guid id, int changeAmount)
+    public async Task<bool> DeleteAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var successObject = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+
+        if (successObject != null)
+        {
+            _context.Products.Remove(successObject);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        return false;
+    }
+
+    public async Task<Product?> UpdateStockQuantity(Guid id, int changeAmount)
+    {
+        var productQuantityToChange = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+
+        if (productQuantityToChange == null)
+        {
+            return null;
+        }
+
+        var newQuantity = productQuantityToChange.QuantityInStock + changeAmount;
+        
+        if (newQuantity < 0)
+        {
+            throw new InvalidOperationException("Storage cant be negative.");
+        }
+        productQuantityToChange.QuantityInStock = newQuantity;
+        await _context.SaveChangesAsync();
+        return productQuantityToChange;
+
     }
 }
