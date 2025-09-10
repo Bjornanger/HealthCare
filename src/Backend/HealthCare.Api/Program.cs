@@ -1,3 +1,4 @@
+using HealthCare.Application;
 using HealthCare.Infrastructure;
 
 namespace HealthCare.Api
@@ -9,6 +10,7 @@ namespace HealthCare.Api
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddInfrastructure(builder.Configuration);
+            builder.Services.AddApplication();
 
             var app = builder.Build();
 
