@@ -34,7 +34,7 @@ namespace HealthCare.Api
             //app.UseHttpsRedirection();
 
             app.MapProductEndpointExtensions();
-
+            app.MapUnitTypeEndpointExtensions();
 
             app.Run();
         }

@@ -1,5 +1,4 @@
-﻿using HealthCare.Application.Interfaces.RepositoryInterfaces;
-using HealthCare.Application.Interfaces.ServiceInterfaces;
+﻿using HealthCare.Application.Interfaces.ServiceInterfaces;
 using HealthCare.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
