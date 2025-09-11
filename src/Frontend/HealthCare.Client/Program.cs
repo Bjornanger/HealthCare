@@ -1,4 +1,5 @@
 using HealthCare.Application.DataTransferObjects.Product;
+using HealthCare.Application.DataTransferObjects.UnitType;
 using HealthCare.Client.Components;
 using HealthCare.Client.FrontendServices;
 using HealthCare.Client.Interfaces;
@@ -23,6 +24,8 @@ namespace HealthCare.Client
 
 
             builder.Services.AddScoped<IProductApiService<ProductDto>, ProductApiService>();
+            builder.Services.AddScoped<IUnitTypeApiService<UnitTypeDto>, UnitTypeApiService>();
+
 
 
 

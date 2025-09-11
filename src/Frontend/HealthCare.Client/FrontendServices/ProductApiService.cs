@@ -29,10 +29,10 @@ public class ProductApiService : IProductApiService<ProductDto>
         return await Task.FromResult(response);
     }
 
-    public async Task<ProductDto> AddAsync(ProductDto productDto)
+    public async Task<ProductDto> AddAsync(CreateProductDto productDto)
     {
 
-        var response = await _httpClient.PostAsJsonAsync<ProductDto>("api/products", productDto);
+        var response = await _httpClient.PostAsJsonAsync("api/products", productDto);
 
         if (!response.IsSuccessStatusCode)
         {

@@ -1,6 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿
 using HealthCare.Application.DataTransferObjects.Product;
-using HealthCare.Application.DataTransferObjects.UnitType;
 using HealthCare.Domain.Entities;
 
 namespace HealthCare.Application.MappingExtensions;
@@ -16,7 +15,7 @@ public static class ProductMappingExtensions
             UnitTypeId = dto.UnitTypeId
         };
     }
-
+  
     public static ProductDto ToProductDto(this Product entity)
     {
         return new ProductDto

@@ -14,8 +14,7 @@ public static class UnitTypeMappingExtensions
             Name = dto.Name
         };
     }
-
-
+   
     public static UnitTypeDto ToUnitTypeDto(this UnitType entity)
     {
         return new UnitTypeDto

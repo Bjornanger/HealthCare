@@ -65,7 +65,7 @@ public class UnitTypeService : IUnitTypeService
         {
             var newUnitType = createUnitTypeDto.ToCreateUnitTypeEntity();
 
-           var successObject = await _unitTypeRepository.AddAsync(newUnitType);
+            var successObject = await _unitTypeRepository.AddAsync(newUnitType);
 
            if (successObject == null)
            {
