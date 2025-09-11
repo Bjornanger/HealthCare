@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCare.Domain", "src\Ba
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCare.Api", "src\Backend\HealthCare.Api\HealthCare.Api.csproj", "{96563B49-77D8-4C6D-BA42-6BDD9AD522A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCare.Client", "src\Frontend\HealthCare.Client\HealthCare.Client.csproj", "{9A3CA13D-2A97-4315-BD28-694068A899A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{96563B49-77D8-4C6D-BA42-6BDD9AD522A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96563B49-77D8-4C6D-BA42-6BDD9AD522A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96563B49-77D8-4C6D-BA42-6BDD9AD522A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A3CA13D-2A97-4315-BD28-694068A899A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A3CA13D-2A97-4315-BD28-694068A899A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A3CA13D-2A97-4315-BD28-694068A899A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A3CA13D-2A97-4315-BD28-694068A899A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,5 +56,6 @@ Global
 		{01CC25DD-7CC7-4540-82F6-619E53A26FAF} = {575611A6-985B-4CB8-8C23-288959E7B34E}
 		{9066A268-F517-4E05-A9A9-3F867978705F} = {575611A6-985B-4CB8-8C23-288959E7B34E}
 		{96563B49-77D8-4C6D-BA42-6BDD9AD522A0} = {575611A6-985B-4CB8-8C23-288959E7B34E}
+		{9A3CA13D-2A97-4315-BD28-694068A899A7} = {C2CEDB96-07C6-46F1-BF34-0182832AC868}
 	EndGlobalSection
 EndGlobal
