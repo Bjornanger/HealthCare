@@ -1,4 +1,7 @@
+using HealthCare.Application.DataTransferObjects.Product;
 using HealthCare.Client.Components;
+using HealthCare.Client.FrontendServices;
+using HealthCare.Client.Interfaces;
 
 namespace HealthCare.Client
 {
@@ -11,6 +14,18 @@ namespace HealthCare.Client
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+
+
+            builder.Services.AddHttpClient("HealthCareAPI", client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7197");
+            });
+
+
+            builder.Services.AddScoped<IProductApiService<ProductDto>, ProductApiService>();
+
+
+
 
             var app = builder.Build();
 
