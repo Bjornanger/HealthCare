@@ -1,22 +1,23 @@
-﻿using HealthCare.Application.DataTransferObjects.Product;
+﻿using System.Runtime.CompilerServices;
+using HealthCare.Application.DataTransferObjects.Product;
+using HealthCare.Application.DataTransferObjects.UnitType;
 using HealthCare.Domain.Entities;
 
 namespace HealthCare.Application.MappingExtensions;
 
 public static class ProductMappingExtensions
 {
-    public static Product ToCreateProductEntity(CreateProductDto dto)
+    public static Product ToCreateProductEntity(this CreateProductDto dto)
     {
         return new Product
         {
             Name = dto.Name,
             QuantityInStock = dto.QuantityInStock,
-            UnitTypeId = dto.UnitTypeId,
-            UnitType = dto.UnitType
+            UnitTypeId = dto.UnitTypeId
         };
     }
 
-    public static ProductDto ToProductDto(Product entity)
+    public static ProductDto ToProductDto(this Product entity)
     {
         return new ProductDto
         {
@@ -24,7 +25,7 @@ public static class ProductMappingExtensions
             Name = entity.Name,
             QuantityInStock = entity.QuantityInStock,
             UnitTypeId = entity.UnitTypeId,
-            UnitType = entity.UnitType
+            UnitType = entity.UnitType?.ToUnitTypeDto()
         };
     }
 
@@ -33,15 +34,15 @@ public static class ProductMappingExtensions
         return entities.Select(ToProductDto);
     }
 
-    public static Product UpdateFromProductDtoToEntity(ProductDto dto, Guid id)
+    public static Product UpdateFromProductDtoToEntity(this ProductDto dto, Guid id, UnitType unitType)
     {
         var updateProduct = new Product
         {
             Id = id,
             Name = dto.Name,
             QuantityInStock = dto.QuantityInStock,
-            UnitTypeId = dto.UnitTypeId,
-            UnitType = dto.UnitType
+            UnitTypeId = unitType.Id,
+            UnitType = unitType
         };
         return updateProduct;
     }

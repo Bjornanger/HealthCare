@@ -7,9 +7,7 @@ namespace HealthCare.Application.DataTransferObjects.Product;
 public class ProductDto
 {
     public Guid Id { get; set; }
-    [Required]
     public string Name { get; set; }
-    [Required]
     public int QuantityInStock { get; set; }
     public Guid UnitTypeId { get; set; }
     public UnitTypeDto UnitType { get; set; } = null!;

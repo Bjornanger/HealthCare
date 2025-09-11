@@ -10,11 +10,13 @@ public class ProductService : IProductService
 {
 
     private readonly IProductRepository _productRepository;
+    private readonly IUnitTypeRepository _unitTypeRepository;
 
 
-    public ProductService(IProductRepository productRepository)
+    public ProductService(IProductRepository productRepository, IUnitTypeRepository unitTypeRepository)
     {
         _productRepository = productRepository;
+        _unitTypeRepository = unitTypeRepository;
     }
 
 
@@ -52,7 +54,7 @@ public class ProductService : IProductService
                 return null;
             }
 
-            return ProductMappingExtensions.ToProductDto(productToFind);
+            return productToFind.ToProductDto();
 
         }
         catch (Exception e)
@@ -68,7 +70,7 @@ public class ProductService : IProductService
     {
         try
         {
-            var newProduct = ProductMappingExtensions.ToCreateProductEntity(productDto);
+            var newProduct = productDto.ToCreateProductEntity();
 
             var successObject = await _productRepository.AddAsync(newProduct);
 
@@ -76,7 +78,7 @@ public class ProductService : IProductService
             {
                 return null;
             }
-            return ProductMappingExtensions.ToProductDto(successObject);
+            return successObject.ToProductDto();
             
         }
         catch (Exception e)
@@ -91,7 +93,14 @@ public class ProductService : IProductService
     {
         try
         {
-            var productToToUpdate = ProductMappingExtensions.UpdateFromProductDtoToEntity(updateProductDto, id);
+            if (updateProductDto.UnitTypeId == Guid.Empty)
+            {
+                return false;
+            }
+
+            var unitType = await _unitTypeRepository.GetByIdAsync(updateProductDto.UnitTypeId);
+
+            var productToToUpdate = updateProductDto.UpdateFromProductDtoToEntity(id, unitType);
 
             var successObject = await _productRepository.UpdateAsync(productToToUpdate, productToToUpdate.Id);
 

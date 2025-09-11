@@ -11,5 +11,4 @@ public class CreateProductDto
     [Required]
     public int QuantityInStock { get; set; }
     public Guid UnitTypeId { get; set; }
-    public UnitTypeDto UnitType { get; set; } = null!;
 }
