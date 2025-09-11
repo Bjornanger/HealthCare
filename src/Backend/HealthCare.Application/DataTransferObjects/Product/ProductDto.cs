@@ -1,4 +1,5 @@
-﻿using HealthCare.Domain.Entities;
+﻿using HealthCare.Application.DataTransferObjects.UnitType;
+using HealthCare.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
 namespace HealthCare.Application.DataTransferObjects.Product;
@@ -11,5 +12,5 @@ public class ProductDto
     [Required]
     public int QuantityInStock { get; set; }
     public Guid UnitTypeId { get; set; }
-    public UnitType UnitType { get; set; } = null!;
+    public UnitTypeDto UnitType { get; set; } = null!;
 }
