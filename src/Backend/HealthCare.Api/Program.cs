@@ -31,6 +31,7 @@ namespace HealthCare.Api
                 app.UseSwaggerUI();
             }
 
+            //Ska denna användas i detta lagret?
             //app.UseHttpsRedirection();
 
             app.MapProductEndpointExtensions();
