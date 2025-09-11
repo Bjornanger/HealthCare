@@ -1,5 +1,4 @@
-﻿using HealthCare.Application.DataTransferObjects.Product;
-using HealthCare.Application.DataTransferObjects.UnitType;
+﻿using HealthCare.Application.DataTransferObjects.UnitType;
 
 namespace HealthCare.Application.Interfaces.ServiceInterfaces;
 

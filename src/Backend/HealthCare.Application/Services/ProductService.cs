@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices.ComTypes;
+﻿
 using HealthCare.Application.DataTransferObjects.Product;
 using HealthCare.Application.Interfaces.RepositoryInterfaces;
 using HealthCare.Application.Interfaces.ServiceInterfaces;
@@ -66,7 +66,7 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task<ProductDto?> AddAsync(CreateProductDto productDto)
+    public async Task<ProductDto> AddAsync(CreateProductDto productDto)
     {
         try
         {
@@ -74,7 +74,7 @@ public class ProductService : IProductService
 
             var successObject = await _productRepository.AddAsync(newProduct);
 
-            if (successObject is null)
+            if (successObject == null)
             {
                 return null;
             }
