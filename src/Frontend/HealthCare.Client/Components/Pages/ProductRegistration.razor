@@ -1,0 +1,181 @@
+﻿@page "/ProductRegistration"
+@using HealthCare.Application.DataTransferObjects.Product
+@using HealthCare.Application.DataTransferObjects.UnitType
+@using HealthCare.Client.Interfaces
+
+@inject IJSRuntime JSRuntime
+@inject IProductApiService<ProductDto> ProductApiService
+@inject IUnitTypeApiService<UnitTypeDto> UnitTypeService
+@rendermode InteractiveServer
+
+
+
+<div class="container mt-4">
+    <div class="row">
+
+        <div class="col-md-6">
+            <h4>Registrera nytt material</h4>
+            <EditForm Model="@createNewProduct" OnValidSubmit="@CreateProduct">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="productName" class="form-label">Artikelnamn:</label>
+                    <InputText id="productName" class="form-control" @bind-Value="createNewProduct.Name" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="articleStock" class="form-label">Antal:</label>
+                    <InputNumber id="articleStock" class="form-control" @bind-Value="createNewProduct.QuantityInStock" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="articleUnitType" class="form-label">Enhet:</label>
+                    <InputSelect id="articleUnitType" class="form-select" @bind-Value="createNewProduct.UnitTypeId">
+                        <option value="">-- Välj enhet --</option>
+                        @foreach (var unitType in AllUnitTypes)
+                        {
+                            <option value="@unitType.Id">@unitType.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Spara</button>
+            </EditForm>
+        </div>
+
+
+        <div class="col-md-6">
+            <h4>Registrera enhetsvärde</h4>
+            <EditForm Model="@createNewUnitType" OnValidSubmit="@CreateUnitType">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="createUnitType" class="form-label">Enhetsnamn:</label>
+                    <InputText id="createUnitType" class="form-control" @bind-Value="createNewUnitType.Name" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Spara</button>
+            </EditForm>
+        </div>
+    </div>
+
+
+    <hr class="my-4" />
+    <style>
+        .product-list-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 1rem;
+        background-color: #fdfdfd;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .product-header,
+        .product-row {
+        display: flex;
+        padding: 8px 16px;
+        border-bottom: 1px solid #ddd;
+        }
+
+        .product-header {
+        font-weight: bold;
+        background-color: #e9ecef;
+        border-radius: 6px 6px 0 0;
+        }
+
+        .product-cell {
+        flex: 1;
+        min-width: 100px;
+        text-align: left;
+        }
+
+        .product-row:nth-child(even) {
+        background-color: #f8f9fa;
+        }
+    </style>
+
+    <div class="product-list-container">
+        <h4 class="text-center mb-3">Artiklar i lagret</h4>
+
+       
+        <div class="product-header">
+            <div class="product-cell">Artikel</div>
+            <div class="product-cell">Antal</div>
+            <div class="product-cell">Enhet</div>
+        </div>
+
+        
+        <Virtualize Items="@AllProducts" ItemSize="50">
+            <ItemContent>
+                <div class="product-row">
+                    <div class="product-cell">@context.Name</div>
+                    <div class="product-cell">@context.QuantityInStock</div>
+                    <div class="product-cell">@context.UnitType?.Name</div>
+                </div>
+            </ItemContent>
+        </Virtualize>
+    </div>
+
+
+</div>
+
+
+
+@code {
+    private CreateProductDto createNewProduct { get; set; } = new();
+    private CreateUnitTypeDto createNewUnitType { get; set; } = new();
+
+
+    private List<ProductDto> AllProducts { get; set; } = new();
+    private List<UnitTypeDto> AllUnitTypes { get; set; } = new();
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        AllProducts.AddRange(await ProductApiService.GetAllAsync());
+        AllUnitTypes.AddRange(await UnitTypeService.GetAllAsync());
+    }
+
+
+
+
+    private async void CreateProduct()
+    {
+        await ProductApiService.AddAsync(createNewProduct);
+
+        if (createNewProduct is null)
+        {
+            await ShowMessage("Artikel kunde inte skapas.");
+        }
+
+        AllProducts.Clear();
+        AllProducts.AddRange(await ProductApiService.GetAllAsync());
+        createNewProduct = new CreateProductDto();
+        StateHasChanged();
+    }
+
+    private async void CreateUnitType()
+    {
+        if (createNewUnitType is null)
+        {
+            await ShowMessage("Måste namnge den nya Enheten.");
+        }
+
+        await UnitTypeService.AddAsync(createNewUnitType);
+        AllUnitTypes.Clear();
+        AllUnitTypes.AddRange(await UnitTypeService.GetAllAsync());
+        createNewUnitType = new CreateUnitTypeDto();
+        StateHasChanged();
+    }
+
+
+    private async Task ShowMessage(string message)
+    {
+        await JSRuntime.InvokeVoidAsync("alert", message);
+    }
+}

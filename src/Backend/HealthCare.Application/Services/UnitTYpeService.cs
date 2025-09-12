@@ -37,7 +37,6 @@ public class UnitTypeService : IUnitTypeService
             throw;
         }
     }
-
     public async Task<UnitTypeDto?> GetByIdAsync(Guid id)
     {
         try
@@ -58,7 +57,6 @@ public class UnitTypeService : IUnitTypeService
             throw;
         }
     }
-
     public async Task<UnitTypeDto> AddAsync(CreateUnitTypeDto createUnitTypeDto)
     {
         try
@@ -82,7 +80,6 @@ public class UnitTypeService : IUnitTypeService
             throw;
         }
     }
-
     public async Task<bool> UpdateAsync(UnitTypeDto updateUnitTypeDto, Guid id)
     {
         try
@@ -106,7 +103,6 @@ public class UnitTypeService : IUnitTypeService
             throw;
         }
     }
-
     public async Task<bool> DeleteAsync(Guid id)
     {
         try

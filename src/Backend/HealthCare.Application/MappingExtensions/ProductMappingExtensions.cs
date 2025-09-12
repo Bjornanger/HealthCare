@@ -15,7 +15,6 @@ public static class ProductMappingExtensions
             UnitTypeId = dto.UnitTypeId
         };
     }
-  
     public static ProductDto ToProductDto(this Product entity)
     {
         return new ProductDto
@@ -27,12 +26,10 @@ public static class ProductMappingExtensions
             UnitType = entity.UnitType?.ToUnitTypeDto()
         };
     }
-
     public static IEnumerable<ProductDto> ToProductDtoList(this IEnumerable<Product> entities)
     {
         return entities.Select(ToProductDto);
     }
-
     public static Product UpdateFromProductDtoToEntity(this ProductDto dto, Guid id, UnitType unitType)
     {
         var updateProduct = new Product
@@ -45,5 +42,4 @@ public static class ProductMappingExtensions
         };
         return updateProduct;
     }
-
 }

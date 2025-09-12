@@ -29,7 +29,6 @@ public static class UnitTypeEndpoint
 
         return Results.Ok(unitTypeList);
     }
-
     private static async Task<IResult> GetUnitTypeById(IUnitTypeService unitTypeService, Guid id)
     {
         var unityTypeFound = await unitTypeService.GetByIdAsync(id);
@@ -41,7 +40,6 @@ public static class UnitTypeEndpoint
 
         return Results.Ok(unityTypeFound);
     }
-
     private static async Task<IResult> AddUnitType(IUnitTypeService unitTypeService, CreateUnitTypeDto unitTypeDto)
     {
         var newUnitType = await unitTypeService.AddAsync(unitTypeDto);
@@ -53,7 +51,6 @@ public static class UnitTypeEndpoint
 
         return Results.Ok(newUnitType);
     }
-
     private static async Task<IResult> UpdateUnitType(IUnitTypeService unitTypeService, UnitTypeDto unitTypeDto, Guid id)
     {
         var successObject = await unitTypeService.UpdateAsync(unitTypeDto, id);
@@ -65,8 +62,6 @@ public static class UnitTypeEndpoint
 
         return Results.Ok();
     }
-
-
     private static async Task<IResult> DeleteUnitType(IUnitTypeService unitTypeService, Guid id)
     {
         var successObject = await unitTypeService.DeleteAsync(id);

@@ -14,7 +14,6 @@ public static class UnitTypeMappingExtensions
             Name = dto.Name
         };
     }
-   
     public static UnitTypeDto ToUnitTypeDto(this UnitType entity)
     {
         return new UnitTypeDto
@@ -23,12 +22,10 @@ public static class UnitTypeMappingExtensions
             Name = entity.Name
         };
     }
-
     public static IEnumerable<UnitTypeDto> ToUnitTypeDtoList(this IEnumerable<UnitType> entities)
     {
         return entities.Select(ToUnitTypeDto);
     }
-
     public static UnitType UpdateFromUnitTypeDtoDtoToEntity(this UnitTypeDto dto, Guid id)
     {
         var updateUnitType = new UnitType
