@@ -1,0 +1,307 @@
+﻿@page "/ProductModification"
+@using HealthCare.Application.DataTransferObjects.Product
+@using HealthCare.Application.DataTransferObjects.UnitType
+@using HealthCare.Client.Interfaces
+@inject IJSRuntime JSRuntime
+@inject IProductApiService<ProductDto> ProductApiService
+@inject IUnitTypeApiService<UnitTypeDto> UnitTypeService
+@rendermode InteractiveServer
+
+
+<PageTitle>Hantera artiklar</PageTitle>
+<div class="container mt-4">
+    <div class="row">
+
+        <div class="col-md-6">
+            <h3>Hantera artiklar</h3>
+
+            <EditForm Model="@searchedProduct" OnValidSubmit="@SearchForProductToUpdate">
+                <label for="searchForProduct">Välj produkt:</label>
+                <InputSelect id="searchForProduct" class="form-select" @bind-Value="searchedProduct.Id">
+                    <option value="">-- Välj --</option>
+                    @foreach (var product in AllProducts)
+                    {
+                        <option value="@product.Id">@product.Name</option>
+                    }
+                </InputSelect>
+                <button type="submit" class="btn btn-primary mt-2">Sök</button>
+            </EditForm>
+
+            <EditForm Model="@updateProduct" OnValidSubmit="@Update" class="mt-4">
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <label for="productName">Artikelnamn:</label>
+                    <InputText id="productName" class="form-control" @bind-Value="updateProduct.Name" />
+                </div>
+                <div class="mb-3">
+                    <label for="productAmount">Antal:</label>
+                    <InputNumber id="productAmount" class="form-control" @bind-Value="updateProduct.QuantityInStock" readonly />
+                </div>
+                <div class="mb-3">
+                    <label for="productUnitType">Enhet:</label>
+                    <InputSelect id="productUnitType" class="form-select" @bind-Value="updateProduct.UnitTypeId">
+                        <option value="">-- Välj enhet --</option>
+                        @foreach (var unitType in AllUnitTypes)
+                        {
+                            <option value="@unitType.Id">@unitType.Name</option>
+                        }
+                    </InputSelect>
+                </div>
+                <button type="submit" class="btn btn-success">Uppdatera</button>
+            </EditForm>
+        </div>
+
+
+        <div class="col-md-6">
+            <h3>Hantera enheter</h3>
+
+            <EditForm Model="@searchedUnitType" OnValidSubmit="@SearchUnitTypeToUpdate">
+                <label for="searchedUnitType">Välj enhet att uppdatera:</label>
+                <InputSelect id="searchForUnitType" class="form-select" @bind-Value="searchedUnitType.Id">
+                    <option value="">-- Välj --</option>
+                    @foreach (var unitType in AllUnitTypes)
+                    {
+                        <option value="@unitType.Id">@unitType.Name</option>
+                    }
+                </InputSelect>
+                <button type="submit" class="btn btn-primary mt-2">Sök</button>
+            </EditForm>
+
+
+
+            <EditForm Model="@updateUnitType" OnValidSubmit="@UpdateUnitTypeName">
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <label for="updateUnitType">Ändra enhet:</label>
+                    <InputText id="updateUnitType" class="form-control" @bind-Value="updateUnitType.Name" />
+                </div>
+                <button type="submit" class="btn btn-secondary">Uppdatera enhetsnamn</button>
+            </EditForm>
+        </div>
+    </div>
+
+
+    <hr class="my-5" />
+    <style>
+        .product-list-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: #fdfdfd;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .product-header,
+        .product-row {
+            display: flex;
+            padding: 8px 16px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .product-header {
+            font-weight: bold;
+            background-color: #e9ecef;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .product-cell {
+            flex: 1;
+            min-width: 100px;
+            text-align: left;
+        }
+
+        .product-row:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+    </style>
+
+    <div class="product-list-container">
+        <h4 class="text-center mb-3">Artiklar i lagret</h4>
+
+
+        <div class="product-header">
+            <div class="product-cell">Artikel</div>
+            <div class="product-cell">Antal</div>
+            <div class="product-cell">Enhet</div>
+        </div>
+
+
+        <Virtualize Items="@AllProducts" ItemSize="50">
+            <ItemContent>
+                <div class="product-row">
+                    <div class="product-cell">@context.Name</div>
+                    <div class="product-cell">@context.QuantityInStock</div>
+                    <div class="product-cell">@context.UnitType?.Name</div>
+                </div>
+            </ItemContent>
+        </Virtualize>
+    </div>
+
+</div>
+
+
+@code {
+
+    private ProductDto updateProduct { get; set; } = new();
+    private ProductDto searchedProduct { get; set; } = new();
+    private List<ProductDto> AllProducts { get; set; } = new();
+
+
+
+    private UnitTypeDto updateUnitType { get; set; } = new();
+    private UnitTypeDto searchedUnitType { get; set; } = new();
+    private List<UnitTypeDto> AllUnitTypes { get; set; } = new();
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        AllProducts.AddRange(await ProductApiService.GetAllAsync());
+        AllUnitTypes.AddRange(await UnitTypeService.GetAllAsync());
+    }
+
+
+
+
+
+    private async void SearchForProductToUpdate()
+    {
+        if (searchedProduct.Id == Guid.Empty)
+        {
+            return;
+        }
+
+        var result = await ProductApiService.GetByIdAsync(searchedProduct.Id);
+
+        if (string.IsNullOrEmpty(result.Name))
+        {
+
+            searchedProduct = null;
+            ShowMessage("Ingen artikel hittades.");
+            return;
+        }
+        else
+        {
+            searchedProduct = result;
+
+        }
+
+        updateProduct = new ProductDto
+            {
+                Id = searchedProduct.Id,
+                Name = searchedProduct.Name,
+                QuantityInStock = searchedProduct.QuantityInStock,
+                UnitTypeId = searchedProduct.UnitTypeId,
+                UnitType = searchedProduct.UnitType
+            };
+
+        StateHasChanged();
+
+    }
+
+    private async Task Update()
+    {
+        var result = await ProductApiService.GetByIdAsync(searchedProduct.Id);
+
+        if (string.IsNullOrEmpty(result.Name))
+        {
+
+            searchedProduct = null;
+            ShowMessage("Ingen artikel hittades.");
+            return;
+        }
+        else
+        {
+            searchedProduct = result;
+
+        }
+
+        var newUpdateProduct = new ProductDto
+            {
+                Id = searchedProduct.Id,
+                Name = updateProduct.Name,
+                QuantityInStock = searchedProduct.QuantityInStock,
+                UnitTypeId = updateProduct.UnitTypeId,
+                UnitType = updateProduct.UnitType
+            };
+
+        await ProductApiService.UpdateAsync(newUpdateProduct, newUpdateProduct.Id);
+        AllProducts.Clear();
+        AllProducts.AddRange(await ProductApiService.GetAllAsync());
+        updateProduct = new ProductDto();
+        searchedProduct = new ProductDto();
+        StateHasChanged();
+    }
+
+
+    private async Task ShowMessage(string message)
+    {
+        await JSRuntime.InvokeVoidAsync("alert", message);
+    }
+
+
+    private async void SearchUnitTypeToUpdate()
+    {
+        if (searchedUnitType.Id == Guid.Empty)
+        {
+            return;
+        }
+
+        var result = await UnitTypeService.GetByIdAsync(searchedUnitType.Id);
+
+        if (string.IsNullOrEmpty(result.Name))
+        {
+
+            searchedUnitType = null;
+            ShowMessage("Ingen enhet hittades.");
+            return;
+        }
+        else
+        {
+            searchedUnitType = result;
+
+        }
+
+        updateUnitType = new UnitTypeDto
+            {
+                Id = searchedUnitType.Id,
+                Name = searchedUnitType.Name,
+            };
+
+        StateHasChanged();
+    }
+
+    private async void UpdateUnitTypeName()
+    {
+        var result = await UnitTypeService.GetByIdAsync(searchedUnitType.Id);
+
+        if (string.IsNullOrEmpty(result.Name))
+        {
+
+            searchedUnitType = null;
+            ShowMessage("Ingen Enhet hittades.");
+            return;
+        }
+        else
+        {
+            searchedUnitType = result;
+
+        }
+
+        var newUpdateUnitType = new UnitTypeDto
+            {
+                Id = searchedUnitType.Id,
+                Name = updateUnitType.Name,
+
+            };
+
+        await UnitTypeService.UpdateAsync(newUpdateUnitType, newUpdateUnitType.Id);
+        AllProducts.Clear();
+        AllProducts.AddRange(await ProductApiService.GetAllAsync());
+        updateUnitType = new UnitTypeDto();
+        searchedUnitType = new UnitTypeDto();
+        StateHasChanged();
+    }
+
+}
