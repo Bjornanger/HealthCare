@@ -50,7 +50,7 @@
         <div class="product-cell">Antal</div>
         <div class="product-cell">Enhet</div>
         <div class="product-cell">Beställa</div>
-
+        <div class="product-cell">Plocka ut</div>
     </div>
 
 
@@ -69,6 +69,12 @@
                     <button class="btn btn-sm btn-outline-success"
                     @onclick="() => orderMore(context.Id)">
                         Beställ
+                    </button>
+                </div>
+                <div class="product-cell">
+                    <button class="btn btn-sm btn-outline-warning"
+                    @onclick="() => PickFromInventory(context.Id)">
+                        Plocka ut
                     </button>
                 </div>
             </div>
@@ -99,15 +105,56 @@
         </div>
     </div>
 }
-
-
+@if (ShowPickFromInventoryModal && orderProduct != null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Plocka ut @orderProduct.Name</h5>
+                    <button type="button" class="btn-close" @onclick="CloseShowPickFromInventoryModal"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="orderAmount">Antal att plocka ut:</label>
+                    <InputNumber id="orderAmount" class="form-control" @bind-Value="orderAmount" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseShowPickFromInventoryModal">Avbryt</button>
+                    <button class="btn btn-warning" @onclick="ConfirmWithdrawal">Plocka ut</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@if (ShowStockValueNegativeModal)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Lagersaldo är negativt</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModalForStock"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Kontrollera uttaget eller justera lagernivån.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseModalForStock">Stäng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @code {
 
 
     private List<ProductDto> AllProducts { get; set; } = new();
 
     private bool ShowOrderModal = false;
-
+    private bool ShowPickFromInventoryModal = false;
+    private bool ShowStockValueNegativeModal = false;
     private ProductDto orderProduct;
 
     private int orderAmount = 0;
@@ -131,7 +178,7 @@
             return "text-body fw-bold"; // normal
     }
 
-
+    #region OrderMoreProducts
     private void orderMore(Guid productId)
     {
         if (productId == Guid.Empty)
@@ -151,7 +198,7 @@
         ShowOrderModal = false;
         orderProduct = null;
         orderAmount = 0;
-        
+
     }
 
     private async Task ConfirmOrder()
@@ -167,4 +214,87 @@
         CloseModal();
     }
 
+
+    #endregion
+    #region PickFromInventory
+
+    private void PickFromInventory(Guid productId)
+    {
+        if (productId == Guid.Empty)
+        {
+            return;
+        }
+
+        orderProduct = AllProducts.FirstOrDefault(p => p.Id == productId);
+        orderAmount = 0;
+        ShowPickFromInventoryModal = true;
+    }
+
+    private async Task ConfirmWithdrawal()
+    {
+
+        //om talet är minus går det in här
+        if (orderAmount < 0)
+        {
+            var negativeValue = orderAmount * -1;
+            var checkedValue = await CheckStockBalance(orderProduct.Id, negativeValue);
+
+            if (checkedValue <= 0)
+            {
+                return;
+            }
+
+            orderAmount = negativeValue * -1;
+            await ProductApiService.UpdateQuantityOnProductAsync(orderProduct.Id, orderAmount);
+            AllProducts.Clear();
+            AllProducts.AddRange(await ProductApiService.GetAllAsync());
+            StateHasChanged();
+        }
+        else if (orderAmount > 0)
+        {
+            //om talet är positivt går det in här och görs om till minus efter check
+            var checkedValue = await CheckStockBalance(orderProduct.Id, orderAmount);
+            if (checkedValue <= 0)
+            {
+                return;
+            }
+
+            var negativeValue = orderAmount * -1;
+            await ProductApiService.UpdateQuantityOnProductAsync(orderProduct.Id, negativeValue);
+            AllProducts.Clear();
+            AllProducts.AddRange(await ProductApiService.GetAllAsync());
+            StateHasChanged();
+        }
+
+
+        CloseShowPickFromInventoryModal();
+    }
+
+    private async Task<int> CheckStockBalance(Guid id, int withdrawalAmount)
+    {
+        var productStockToCheck = AllProducts.FirstOrDefault(p => p.Id == id);
+
+        if (productStockToCheck.QuantityInStock < withdrawalAmount)
+        {
+            ShowStockValueNegativeModal = true;
+            return 0;
+        }
+
+        return withdrawalAmount;
+
+
+    }
+
+    private void CloseShowPickFromInventoryModal()
+    {
+        ShowPickFromInventoryModal = false;
+        orderProduct = null;
+        orderAmount = 0;
+    }
+    private void CloseModalForStock()
+    {
+        ShowStockValueNegativeModal = false;
+    }
+    #endregion
+   
 }

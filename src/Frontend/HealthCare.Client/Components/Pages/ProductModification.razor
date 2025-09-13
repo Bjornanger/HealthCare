@@ -2,7 +2,7 @@
 @using HealthCare.Application.DataTransferObjects.Product
 @using HealthCare.Application.DataTransferObjects.UnitType
 @using HealthCare.Client.Interfaces
-@inject IJSRuntime JSRuntime
+
 @inject IProductApiService<ProductDto> ProductApiService
 @inject IUnitTypeApiService<UnitTypeDto> UnitTypeService
 @rendermode InteractiveServer
@@ -198,7 +198,6 @@
         {
 
             searchedProduct = null;
-            ShowMessage("Ingen artikel hittades.");
             return;
         }
         else
@@ -228,7 +227,6 @@
         {
 
             searchedProduct = null;
-            ShowMessage("Ingen artikel hittades.");
             return;
         }
         else
@@ -253,13 +251,7 @@
         searchedProduct = new ProductDto();
         StateHasChanged();
     }
-
-
-    private async Task ShowMessage(string message)
-    {
-        await JSRuntime.InvokeVoidAsync("alert", message);
-    }
-
+    
 
     private async void SearchUnitTypeToUpdate()
     {
@@ -274,7 +266,6 @@
         {
 
             searchedUnitType = null;
-            ShowMessage("Ingen enhet hittades.");
             return;
         }
         else
@@ -300,7 +291,6 @@
         {
 
             searchedUnitType = null;
-            ShowMessage("Ingen Enhet hittades.");
             return;
         }
         else

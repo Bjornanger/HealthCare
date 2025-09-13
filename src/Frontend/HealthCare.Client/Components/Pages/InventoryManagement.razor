@@ -153,7 +153,26 @@
         </div>
     </div>
 }
-
+@if (ShowStockValueNegativeModal)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Lagersaldo är negativt</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModalForStock"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Kontrollera uttaget eller justera lagernivån.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseModalForStock">Stäng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @code {
 
 
@@ -164,8 +183,8 @@
     private bool ShowOrderModal = false;
     private bool ShowPickFromInventoryModal = false;
     private bool ShowCancellationOfProductModal = false;
+    private bool ShowStockValueNegativeModal = false;
 
-    
     protected override async Task OnInitializedAsync()
     {
 
@@ -281,13 +300,13 @@
         CloseShowPickFromInventoryModal();
     }
 
-    private async Task<int> CheckStockBalance(Guid id, int withdrawalAmount)
+    private Task<int> CheckStockBalance(Guid id, int withdrawalAmount)
     {
         var productStockToCheck = AllProducts.FirstOrDefault(p => p.Id == id);
 
         if (productStockToCheck.QuantityInStock < withdrawalAmount)
         {
-            ShowMessage("Finns inte tillräckligt med varor på lagret för uttaget.");
+            ShowStockValueNegativeModal = true;
             return 0;
         }
 
@@ -302,7 +321,10 @@
         orderProduct = null;
         orderAmount = 0;
     }
-
+    private void CloseModalForStock()
+    {
+        ShowStockValueNegativeModal = false;
+    }
     #endregion
 
     #region CancelProductFromStock
@@ -341,12 +363,5 @@
 
     #endregion
     
-
-    private async Task ShowMessage(string message)
-    {
-        await JSRuntime.InvokeVoidAsync("alert", message);
-    }
-
-   
 
 }
