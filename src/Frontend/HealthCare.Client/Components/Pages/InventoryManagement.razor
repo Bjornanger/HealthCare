@@ -68,23 +68,23 @@
                 <div class="product-cell">@context.UnitType?.Name</div>
 
                 <div class="product-cell">
-                    <button class="btn btn-sm btn-outline-primary"
+                    <button class="btn btn-sm btn-outline-success"
                     @onclick="() => orderMore(context.Id)">
                         Beställ
                     </button>
                 </div>
                 <div class="product-cell">
-                    <button class="btn btn-sm btn-outline-primary"
+                    <button class="btn btn-sm btn-outline-warning"
                     @onclick="() => PickFromInventory(context.Id)">
                         Plocka ut
                     </button>
                 </div>
-                @*   <div class="product-cell">
-                    <button class="btn btn-sm btn-outline-primary"
-                            @onclick="() => CancelProductFromInventory(context.Id)">
+                <div class="product-cell">
+                    <button class="btn btn-sm btn-outline-danger"
+                    @onclick="() => CancelProductFromInventory(context.Id)">
                         Avregistrera
                     </button>
-                </div> *@
+                </div>
             </div>
         </ItemContent>
     </Virtualize>
@@ -107,7 +107,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" @onclick="CloseShowOrderModal">Avbryt</button>
-                    <button class="btn btn-primary" @onclick="ConfirmOrder">Beställ</button>
+                    <button class="btn btn-success" @onclick="ConfirmOrder">Beställ</button>
                 </div>
             </div>
         </div>
@@ -129,13 +129,30 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" @onclick="CloseShowPickFromInventoryModal">Avbryt</button>
-                    <button class="btn btn-primary" @onclick="ConfirmWithdrawal">Plocka ut</button>
+                    <button class="btn btn-warning" @onclick="ConfirmWithdrawal">Plocka ut</button>
                 </div>
             </div>
         </div>
     </div>
 }
-
+@if (ShowCancellationOfProductModal && orderProduct != null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Avregistrera @orderProduct.Name</h5>
+                    <button type="button" class="btn-close" @onclick="CloseShowCancellationOfProductModal"></button>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseShowCancellationOfProductModal">Avbryt</button>
+                    <button class="btn btn-danger" @onclick="ConfirmCancellationOfProduct">Avregistrera artikel från lager</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
 
@@ -146,11 +163,9 @@
 
     private bool ShowOrderModal = false;
     private bool ShowPickFromInventoryModal = false;
+    private bool ShowCancellationOfProductModal = false;
 
-
-
-
-
+    
     protected override async Task OnInitializedAsync()
     {
 
@@ -160,13 +175,13 @@
     private string WarningColorOnLowInventory(int quantity)
     {
         if (quantity == 0)
-            return "text-danger fw-bold"; // röd
+            return "text-danger fw-bold";
         else if (quantity <= 10)
-            return "text-danger fw-bold"; // röd
+            return "text-danger fw-bold"; 
         else if (quantity <= 29)
-            return "text-warning fw-bold"; // gul
+            return "text-warning fw-bold"; 
         else
-            return "text-body fw-bold"; // normal
+            return "text-body fw-bold"; 
     }
 
     #region OrderMoreProducts
@@ -290,17 +305,48 @@
 
     #endregion
 
-    #region MyRegion
+    #region CancelProductFromStock
 
-    
+    private async Task CancelProductFromInventory(Guid productId)
+    {
+        if (productId == Guid.Empty)
+        {
+            return;
+        }
+        orderProduct = AllProducts.FirstOrDefault(p => p.Id == productId);
+        ShowCancellationOfProductModal = true;
+    }
+    private void CloseShowCancellationOfProductModal()
+    {
+        ShowCancellationOfProductModal = false;
+        orderProduct = null;
+
+    }
+    private async Task ConfirmCancellationOfProduct()
+    {
+        var productToCancel = AllProducts.FirstOrDefault(p => p.Id == orderProduct.Id);
+
+        if (productToCancel == null)
+        {
+            return;
+        }
+
+        await ProductApiService.DeleteAsync(productToCancel.Id);
+        AllProducts.Clear();
+        AllProducts.AddRange(await ProductApiService.GetAllAsync());
+        StateHasChanged();
+        
+        CloseShowCancellationOfProductModal();
+    }
 
     #endregion
-
-
+    
 
     private async Task ShowMessage(string message)
     {
         await JSRuntime.InvokeVoidAsync("alert", message);
     }
+
+   
 
 }
