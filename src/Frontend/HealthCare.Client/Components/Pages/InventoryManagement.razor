@@ -1,0 +1,306 @@
+﻿@page "/InventoryManagement"
+@using HealthCare.Application.DataTransferObjects.Product
+@using HealthCare.Client.Interfaces
+@inject IJSRuntime JSRuntime
+@inject IProductApiService<ProductDto> ProductApiService
+
+@rendermode InteractiveServer
+
+
+<style>
+    .product-list-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background-color: #fdfdfd;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .product-header,
+    .product-row {
+    display: flex;
+    padding: 8px 16px;
+    border-bottom: 1px solid #ddd;
+    }
+
+    .product-header {
+    font-weight: bold;
+    background-color: #e9ecef;
+    border-radius: 6px 6px 0 0;
+    }
+
+    .product-cell {
+    flex: 1;
+    min-width: 100px;
+    text-align: left;
+    }
+
+    .product-row:nth-child(even) {
+    background-color: #f8f9fa;
+    }
+</style>
+
+<div class="product-list-container">
+    <h4 class="text-center mb-3">Artiklar i lagret</h4>
+
+
+    <div class="product-header">
+        <div class="product-cell">Artikel</div>
+        <div class="product-cell">Antal</div>
+        <div class="product-cell">Enhet</div>
+        <div class="product-cell">Beställa</div>
+        <div class="product-cell">Plocka ut</div>
+        <div class="product-cell">Avregistrera</div>
+
+    </div>
+
+
+    <Virtualize Items="@AllProducts" ItemSize="50">
+        <ItemContent>
+            <div class="product-row">
+                <div class="product-cell">@context.Name</div>
+                <div class="product-cell">
+                    <span class="@WarningColorOnLowInventory(context.QuantityInStock)">
+                        @(context.QuantityInStock == 0 ? "Tillfälligt slut" : context.QuantityInStock.ToString())
+                    </span>
+                </div>
+                <div class="product-cell">@context.UnitType?.Name</div>
+
+                <div class="product-cell">
+                    <button class="btn btn-sm btn-outline-primary"
+                    @onclick="() => orderMore(context.Id)">
+                        Beställ
+                    </button>
+                </div>
+                <div class="product-cell">
+                    <button class="btn btn-sm btn-outline-primary"
+                    @onclick="() => PickFromInventory(context.Id)">
+                        Plocka ut
+                    </button>
+                </div>
+                @*   <div class="product-cell">
+                    <button class="btn btn-sm btn-outline-primary"
+                            @onclick="() => CancelProductFromInventory(context.Id)">
+                        Avregistrera
+                    </button>
+                </div> *@
+            </div>
+        </ItemContent>
+    </Virtualize>
+</div>
+
+
+@if (ShowOrderModal && orderProduct != null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Beställ fler av @orderProduct.Name</h5>
+                    <button type="button" class="btn-close" @onclick="CloseShowOrderModal"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="orderAmount">Antal att beställa:</label>
+                    <InputNumber id="orderAmount" class="form-control" @bind-Value="orderAmount" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseShowOrderModal">Avbryt</button>
+                    <button class="btn btn-primary" @onclick="ConfirmOrder">Beställ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@if (ShowPickFromInventoryModal && orderProduct != null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Plocka ut @orderProduct.Name</h5>
+                    <button type="button" class="btn-close" @onclick="CloseShowPickFromInventoryModal"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="orderAmount">Antal att plocka ut:</label>
+                    <InputNumber id="orderAmount" class="form-control" @bind-Value="orderAmount" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseShowPickFromInventoryModal">Avbryt</button>
+                    <button class="btn btn-primary" @onclick="ConfirmWithdrawal">Plocka ut</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+
+
+    private List<ProductDto> AllProducts { get; set; } = new();
+    private ProductDto orderProduct;
+    private int orderAmount = 0;
+
+    private bool ShowOrderModal = false;
+    private bool ShowPickFromInventoryModal = false;
+
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        AllProducts.AddRange(await ProductApiService.GetAllAsync());
+    }
+
+    private string WarningColorOnLowInventory(int quantity)
+    {
+        if (quantity == 0)
+            return "text-danger fw-bold"; // röd
+        else if (quantity <= 10)
+            return "text-danger fw-bold"; // röd
+        else if (quantity <= 29)
+            return "text-warning fw-bold"; // gul
+        else
+            return "text-body fw-bold"; // normal
+    }
+
+    #region OrderMoreProducts
+    private void orderMore(Guid productId)
+    {
+        if (productId == Guid.Empty)
+        {
+            return;
+        }
+
+        orderProduct = AllProducts.FirstOrDefault(p => p.Id == productId);
+        orderAmount = 0;
+        ShowOrderModal = true;
+
+    }
+
+    private void CloseShowOrderModal()
+    {
+        ShowOrderModal = false;
+        orderProduct = null;
+        orderAmount = 0;
+
+    }
+
+    private async Task ConfirmOrder()
+    {
+        if (orderAmount > 0)
+        {
+            await ProductApiService.UpdateQuantityOnProductAsync(orderProduct.Id, orderAmount);
+            AllProducts.Clear();
+            AllProducts.AddRange(await ProductApiService.GetAllAsync());
+            StateHasChanged();
+        }
+        else if (orderAmount < 0)
+        {
+            return;
+        }
+
+        CloseShowOrderModal();
+    }
+
+
+
+    #endregion
+
+    #region PickFromInventory
+
+    private void PickFromInventory(Guid productId)
+    {
+        if (productId == Guid.Empty)
+        {
+            return;
+        }
+
+        orderProduct = AllProducts.FirstOrDefault(p => p.Id == productId);
+        orderAmount = 0;
+        ShowPickFromInventoryModal = true;
+    }
+
+    private async Task ConfirmWithdrawal()
+    {
+
+        //om talet är minus går det in här
+        if (orderAmount < 0)
+        {
+            var negativeValue = orderAmount * -1;
+            var checkedValue = await CheckStockBalance(orderProduct.Id, negativeValue);
+
+            if (checkedValue <= 0)
+            {
+                return;
+            }
+
+            orderAmount = negativeValue * -1;
+            await ProductApiService.UpdateQuantityOnProductAsync(orderProduct.Id, orderAmount);
+            AllProducts.Clear();
+            AllProducts.AddRange(await ProductApiService.GetAllAsync());
+            StateHasChanged();
+        }
+        else if (orderAmount > 0)
+        {
+            //om talet är positivt går det in här och görs om till minus efter check
+            var checkedValue = await CheckStockBalance(orderProduct.Id, orderAmount);
+            if (checkedValue <= 0)
+            {
+                return;
+            }
+
+            var negativeValue = orderAmount * -1;
+            await ProductApiService.UpdateQuantityOnProductAsync(orderProduct.Id, negativeValue);
+            AllProducts.Clear();
+            AllProducts.AddRange(await ProductApiService.GetAllAsync());
+            StateHasChanged();
+        }
+
+
+        CloseShowPickFromInventoryModal();
+    }
+
+    private async Task<int> CheckStockBalance(Guid id, int withdrawalAmount)
+    {
+        var productStockToCheck = AllProducts.FirstOrDefault(p => p.Id == id);
+
+        if (productStockToCheck.QuantityInStock < withdrawalAmount)
+        {
+            ShowMessage("Finns inte tillräckligt med varor på lagret för uttaget.");
+            return 0;
+        }
+
+        return withdrawalAmount;
+
+
+    }
+
+    private void CloseShowPickFromInventoryModal()
+    {
+        ShowPickFromInventoryModal = false;
+        orderProduct = null;
+        orderAmount = 0;
+    }
+
+    #endregion
+
+    #region MyRegion
+
+    
+
+    #endregion
+
+
+
+    private async Task ShowMessage(string message)
+    {
+        await JSRuntime.InvokeVoidAsync("alert", message);
+    }
+
+}

@@ -78,7 +78,7 @@ public class ProductRepository : IProductRepository
         
         if (newQuantity < 0)
         {
-            throw new InvalidOperationException("Storage cant be negative.");
+            return null;
         }
         productQuantityToChange.QuantityInStock = newQuantity;
         await _context.SaveChangesAsync();
