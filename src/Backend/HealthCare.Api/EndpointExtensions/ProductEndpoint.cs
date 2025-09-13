@@ -1,5 +1,6 @@
 ﻿using HealthCare.Application.DataTransferObjects.Product;
 using HealthCare.Application.Interfaces.ServiceInterfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HealthCare.Api.EndpointExtensions;
 
@@ -75,7 +76,7 @@ public static class ProductEndpoint
 
         return Results.Ok();
     }
-    private static async Task<IResult> UpdateProductQuantity(IProductService productService, Guid id, int amountToChange)
+    private static async Task<IResult> UpdateProductQuantity(IProductService productService, Guid id, [FromBody] int amountToChange)
     {
         var successObject = await productService.UpdateQuantity(id, amountToChange);
 
