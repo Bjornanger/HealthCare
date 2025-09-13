@@ -8,10 +8,13 @@ namespace HealthCare.Application.Services;
 public class UnitTypeService : IUnitTypeService
 {
     private readonly IUnitTypeRepository _unitTypeRepository;
+    private readonly IProductRepository _productRepository;
 
-    public UnitTypeService(IUnitTypeRepository unitTypeRepository)
+
+    public UnitTypeService(IUnitTypeRepository unitTypeRepository, IProductRepository productRepository)
     {
         _unitTypeRepository = unitTypeRepository;
+        _productRepository = productRepository;
     }
 
 
@@ -103,11 +106,34 @@ public class UnitTypeService : IUnitTypeService
             throw;
         }
     }
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(Guid unitTypeId)
     {
         try
         {
-            var successObject = await _unitTypeRepository.DeleteAsync(id);
+
+            if (unitTypeId == Guid.Parse("00000000-0000-0000-0000-000000000001"))
+            {
+                return false;
+            }
+
+            var productsWithUnitType = await _productRepository.GetAllAsync();
+
+            var listOfProductsToReplaceUnitTypeOn = productsWithUnitType.Where(p => p.UnitTypeId == unitTypeId);
+
+            var defaultValueForProducts = new UnitTypeDto
+            {
+                Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                Name = "Åtgärd krävs"
+            };
+
+            foreach (var product in listOfProductsToReplaceUnitTypeOn)
+            {
+                product.UnitTypeId = defaultValueForProducts.Id;
+                product.UnitType.Name = defaultValueForProducts.Name;
+                await _productRepository.UpdateAsync( product, product.Id);
+            }
+
+            var successObject = await _unitTypeRepository.DeleteAsync(unitTypeId);
 
             if (!successObject)
             {

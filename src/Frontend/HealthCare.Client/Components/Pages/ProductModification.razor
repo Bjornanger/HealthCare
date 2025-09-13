@@ -47,7 +47,7 @@
                         }
                     </InputSelect>
                 </div>
-                <button type="submit" class="btn btn-success">Uppdatera</button>
+                <button type="submit" class="btn btn-success">Uppdatera artikel</button>
             </EditForm>
         </div>
 
@@ -59,7 +59,7 @@
                 <label for="searchedUnitType">Välj enhet att uppdatera:</label>
                 <InputSelect id="searchForUnitType" class="form-select" @bind-Value="searchedUnitType.Id">
                     <option value="">-- Välj --</option>
-                    @foreach (var unitType in AllUnitTypes)
+                    @foreach (var unitType in AllUnitTypesExceptDefault)
                     {
                         <option value="@unitType.Id">@unitType.Name</option>
                     }
@@ -67,16 +67,32 @@
                 <button type="submit" class="btn btn-primary mt-2">Sök</button>
             </EditForm>
 
-
-
             <EditForm Model="@updateUnitType" OnValidSubmit="@UpdateUnitTypeName">
                 <DataAnnotationsValidator />
                 <div class="mb-3">
                     <label for="updateUnitType">Ändra enhet:</label>
                     <InputText id="updateUnitType" class="form-control" @bind-Value="updateUnitType.Name" />
                 </div>
-                <button type="submit" class="btn btn-secondary">Uppdatera enhetsnamn</button>
+                <button type="submit" class="btn btn-success">Uppdatera enhetsnamn</button>
             </EditForm>
+            <hr class="my-5" />
+
+
+            <EditForm Model="@deleteUnitType" OnValidSubmit="@RemoveUnitType">
+                <label for="deleteUnitType">Välj enhet att ta bort:</label>
+                <InputSelect id="deleteUnitType" class="form-select" @bind-Value="deleteUnitType.Id">
+                    <option value="">-- Välj enhet att ta bort --</option>
+                    @foreach (var unitType in AllUnitTypesExceptDefault)
+                    {
+                        <option value="@unitType.Id">@unitType.Name</option>
+                    }
+                </InputSelect>
+                <button type="submit" class="btn btn-danger mt-2">Remove</button>
+            </EditForm>
+
+
+
+
         </div>
     </div>
 
@@ -84,35 +100,35 @@
     <hr class="my-5" />
     <style>
         .product-list-container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 1rem;
-            background-color: #fdfdfd;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 1rem;
+        background-color: #fdfdfd;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
 
         .product-header,
         .product-row {
-            display: flex;
-            padding: 8px 16px;
-            border-bottom: 1px solid #ddd;
+        display: flex;
+        padding: 8px 16px;
+        border-bottom: 1px solid #ddd;
         }
 
         .product-header {
-            font-weight: bold;
-            background-color: #e9ecef;
-            border-radius: 6px 6px 0 0;
+        font-weight: bold;
+        background-color: #e9ecef;
+        border-radius: 6px 6px 0 0;
         }
 
         .product-cell {
-            flex: 1;
-            min-width: 100px;
-            text-align: left;
+        flex: 1;
+        min-width: 100px;
+        text-align: left;
         }
 
         .product-row:nth-child(even) {
-            background-color: #f8f9fa;
+        background-color: #f8f9fa;
         }
     </style>
 
@@ -148,20 +164,24 @@
     private List<ProductDto> AllProducts { get; set; } = new();
 
 
+    private UnitTypeDto deleteUnitType { get; set; } = new();
 
     private UnitTypeDto updateUnitType { get; set; } = new();
     private UnitTypeDto searchedUnitType { get; set; } = new();
     private List<UnitTypeDto> AllUnitTypes { get; set; } = new();
+    private List<UnitTypeDto> AllUnitTypesExceptDefault { get; set; } = new();
+
 
 
 
     protected override async Task OnInitializedAsync()
     {
         AllProducts.AddRange(await ProductApiService.GetAllAsync());
+
         AllUnitTypes.AddRange(await UnitTypeService.GetAllAsync());
+
+        AllUnitTypesExceptDefault = AllUnitTypes.Where(u => u.Name != "Åtgärd krävs").ToList();
     }
-
-
 
 
 
@@ -301,6 +321,25 @@
         AllProducts.AddRange(await ProductApiService.GetAllAsync());
         updateUnitType = new UnitTypeDto();
         searchedUnitType = new UnitTypeDto();
+        StateHasChanged();
+    }
+
+    private async void RemoveUnitType()
+    {
+        var unitTypeToRemove = AllUnitTypes.FirstOrDefault(u => u.Id == deleteUnitType.Id);
+
+        if (unitTypeToRemove.Id == Guid.Empty)
+        {
+            return;
+        }
+
+        await UnitTypeService.DeleteAsync(unitTypeToRemove.Id);
+
+        AllProducts.Clear();
+        AllProducts.AddRange(await ProductApiService.GetAllAsync());
+        AllUnitTypes.Clear();
+        AllUnitTypes.AddRange(await UnitTypeService.GetAllAsync());
+        deleteUnitType = new UnitTypeDto();
         StateHasChanged();
     }
 

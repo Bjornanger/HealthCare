@@ -33,7 +33,7 @@
                     <label for="articleUnitType" class="form-label">Enhet:</label>
                     <InputSelect id="articleUnitType" class="form-select" @bind-Value="createNewProduct.UnitTypeId">
                         <option value="">-- Välj enhet --</option>
-                        @foreach (var unitType in AllUnitTypes)
+                        @foreach (var unitType in AllUnitTypesExceptDefault)
                         {
                             <option value="@unitType.Id">@unitType.Name</option>
                         }
@@ -131,6 +131,8 @@
 
     private List<ProductDto> AllProducts { get; set; } = new();
     private List<UnitTypeDto> AllUnitTypes { get; set; } = new();
+    private List<UnitTypeDto> AllUnitTypesExceptDefault { get; set; } = new();
+
 
 
 
@@ -139,6 +141,7 @@
     {
         AllProducts.AddRange(await ProductApiService.GetAllAsync());
         AllUnitTypes.AddRange(await UnitTypeService.GetAllAsync());
+        AllUnitTypesExceptDefault = AllUnitTypes.Where(u => u.Name != "Åtgärd krävs").ToList();
     }
 
 
