@@ -300,7 +300,7 @@
         CloseShowPickFromInventoryModal();
     }
 
-    private Task<int> CheckStockBalance(Guid id, int withdrawalAmount)
+    private async Task<int> CheckStockBalance(Guid id, int withdrawalAmount)
     {
         var productStockToCheck = AllProducts.FirstOrDefault(p => p.Id == id);
 

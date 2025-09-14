@@ -1,7 +1,60 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<div>
+    <style>
+       
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: white;
+        }
 
-<h1>Hello, world!</h1>
+      
+        .header {
+            flex: 0 1 auto;
+            text-align: center;
+            margin: 0; 
+            padding: 0; 
+        }
 
-Welcome to your new app.
+            .header img {
+                align-content: center;
+                width: 70%;
+                height: 450px;
+                display: block;
+            }
+
+      
+        .main-content {
+            flex: 1 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: transparent;
+        }
+
+     
+
+    
+    </style>
+
+</div>
+
+
+<div class="container mb-5">
+    <header class="header mt-3">
+       
+
+            <img src="images/VGRbannerfärg.png" alt="Logotyp" />
+       
+    </header>
+    <main class="main-content">
+        
+        <p>
+            VGR ansvarar för att du har tillgång till en bra sjukvård och vi skapar förutsättningar för en god hälsa för alla i Västra Götaland.<br />
+            Våra andra uppdrag är att arbeta med kultur, kollektivtrafik, tillväxt och en hållbar utveckling i Västra Götaland.<br />
+        </p>
+
+    </main>
+
+</div>

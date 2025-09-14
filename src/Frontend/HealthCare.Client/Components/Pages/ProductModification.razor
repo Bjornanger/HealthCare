@@ -309,6 +309,10 @@
         await UnitTypeService.UpdateAsync(newUpdateUnitType, newUpdateUnitType.Id);
         AllProducts.Clear();
         AllProducts.AddRange(await ProductApiService.GetAllAsync());
+        AllUnitTypes.Clear();
+        AllUnitTypes.AddRange(await UnitTypeService.GetAllAsync());
+        AllUnitTypesExceptDefault.Clear();
+        AllUnitTypesExceptDefault = AllUnitTypes.Where(u => u.Name != "Åtgärd krävs").ToList();
         updateUnitType = new UnitTypeDto();
         searchedUnitType = new UnitTypeDto();
         StateHasChanged();
@@ -316,7 +320,7 @@
 
     private async void RemoveUnitType()
     {
-        var unitTypeToRemove = AllUnitTypes.FirstOrDefault(u => u.Id == deleteUnitType.Id);
+        var unitTypeToRemove = AllUnitTypesExceptDefault.FirstOrDefault(u => u.Id == deleteUnitType.Id);
 
         if (unitTypeToRemove.Id == Guid.Empty)
         {
@@ -329,6 +333,8 @@
         AllProducts.AddRange(await ProductApiService.GetAllAsync());
         AllUnitTypes.Clear();
         AllUnitTypes.AddRange(await UnitTypeService.GetAllAsync());
+        AllUnitTypesExceptDefault.Clear();
+        AllUnitTypesExceptDefault = AllUnitTypes.Where(u => u.Name != "Åtgärd krävs").ToList();
         deleteUnitType = new UnitTypeDto();
         StateHasChanged();
     }
