@@ -72,6 +72,7 @@ Applikationen är byggd i **ASP.NET Core Blazor Server med .NET 8** och använde
 - [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download)
 - Microsoft SQL Server
 - Webbläsare som stöder moderna webbstandarder
+- Clona repository, lägg till en appsettings.json i formatet nedan men med din datorns connectionsstring sen är det bara att köra igång.
 
 ### Konfiguration
 
