@@ -3,6 +3,7 @@ using HealthCare.Application.DataTransferObjects.Product;
 using HealthCare.Application.Interfaces.RepositoryInterfaces;
 using HealthCare.Application.Interfaces.ServiceInterfaces;
 using HealthCare.Application.MappingExtensions;
+using HealthCare.Domain.Entities;
 
 namespace HealthCare.Application.Services;
 
@@ -37,7 +38,6 @@ public class ProductService : IProductService
         }
         catch (Exception e)
         {
-            //lägg in logger
             Console.WriteLine(e);
             throw;
         }
@@ -58,8 +58,6 @@ public class ProductService : IProductService
         }
         catch (Exception e)
         {
-            //lägg in logger
-
             Console.WriteLine(e);
             throw;
         }
@@ -81,7 +79,6 @@ public class ProductService : IProductService
         }
         catch (Exception e)
         {
-            //lägg in logger
             Console.WriteLine(e);
             throw;
         }
@@ -95,11 +92,27 @@ public class ProductService : IProductService
                 return false;
             }
 
+            var product = await _productRepository.GetByIdAsync(id);
+            if (product == null)
+            {
+                return false;
+            }
+               
+
             var unitType = await _unitTypeRepository.GetByIdAsync(updateProductDto.UnitTypeId);
+            if (unitType == null)
+            {
+                return false;
+            }
 
-            var productToToUpdate = updateProductDto.UpdateFromProductDtoToEntity(id, unitType);
+            product.Name = updateProductDto.Name;
+            product.QuantityInStock = updateProductDto.QuantityInStock;
+            product.UnitTypeId = unitType.Id;
+            product.UnitType = unitType;
 
-            var successObject = await _productRepository.UpdateAsync(productToToUpdate, productToToUpdate.Id);
+            
+
+            var successObject = await _productRepository.UpdateAsync(product, product.Id);
 
             if (successObject)
             {
@@ -111,7 +124,6 @@ public class ProductService : IProductService
         }
         catch (Exception e)
         {
-            //Lägg in logger
             Console.WriteLine(e);
             throw;
         }
@@ -140,19 +152,26 @@ public class ProductService : IProductService
     {
         try
         {
-            var modifyStockForThisProduct = await _productRepository.UpdateStockQuantity(id, changeAmount);
-
-            if (modifyStockForThisProduct == null)
+            var productToChangeQuantityOn = await _productRepository.GetByIdAsync(id);
+            if (productToChangeQuantityOn == null)
             {
                 return false;
             }
 
+
+            var newQuantity = productToChangeQuantityOn.QuantityInStock + changeAmount;
+            if (newQuantity < 0)
+            {
+                return false;
+            }
+
+
+            await _productRepository.UpdateStockQuantity(id, newQuantity);
             return true;
 
         }
         catch (Exception e)
         {
-            //lägg in logger
             Console.WriteLine(e);
             throw;
         }

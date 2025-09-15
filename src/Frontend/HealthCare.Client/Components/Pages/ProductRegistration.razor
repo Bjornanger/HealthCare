@@ -132,10 +132,7 @@
     private List<ProductDto> AllProducts { get; set; } = new();
     private List<UnitTypeDto> AllUnitTypes { get; set; } = new();
     private List<UnitTypeDto> AllUnitTypesExceptDefault { get; set; } = new();
-
-
-
-
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -144,8 +141,7 @@
         AllUnitTypesExceptDefault = AllUnitTypes.Where(u => u.Name != "Åtgärd krävs").ToList();
     }
 
-
-
+    
 
     private async void CreateProduct()
     {
@@ -172,6 +168,8 @@
         await UnitTypeService.AddAsync(createNewUnitType);
         AllUnitTypes.Clear();
         AllUnitTypes.AddRange(await UnitTypeService.GetAllAsync());
+        AllUnitTypesExceptDefault.Clear();
+        AllUnitTypesExceptDefault = AllUnitTypes.Where(u => u.Name != "Åtgärd krävs").ToList();
         createNewUnitType = new CreateUnitTypeDto();
         StateHasChanged();
     }

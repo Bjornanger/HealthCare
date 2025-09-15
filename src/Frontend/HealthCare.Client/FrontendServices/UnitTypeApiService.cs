@@ -1,5 +1,4 @@
-﻿using HealthCare.Application.DataTransferObjects.Product;
-using HealthCare.Application.DataTransferObjects.UnitType;
+﻿using HealthCare.Application.DataTransferObjects.UnitType;
 using HealthCare.Client.Interfaces;
 using System.Net;
 

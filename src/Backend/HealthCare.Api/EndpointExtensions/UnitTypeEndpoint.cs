@@ -24,7 +24,7 @@ public static class UnitTypeEndpoint
 
         if (unitTypeList is null || !unitTypeList.Any())
         {
-            return Results.NoContent();
+            unitTypeList = new List<UnitTypeDto>();
         }
 
         return Results.Ok(unitTypeList);

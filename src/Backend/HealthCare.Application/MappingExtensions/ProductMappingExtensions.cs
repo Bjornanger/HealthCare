@@ -30,16 +30,5 @@ public static class ProductMappingExtensions
     {
         return entities.Select(ToProductDto);
     }
-    public static Product UpdateFromProductDtoToEntity(this ProductDto dto, Guid id, UnitType unitType)
-    {
-        var updateProduct = new Product
-        {
-            Id = id,
-            Name = dto.Name,
-            QuantityInStock = dto.QuantityInStock,
-            UnitTypeId = unitType.Id,
-            UnitType = unitType
-        };
-        return updateProduct;
-    }
+   
 }

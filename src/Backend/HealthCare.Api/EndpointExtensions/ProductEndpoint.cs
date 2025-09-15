@@ -26,7 +26,7 @@ public static class ProductEndpoint
 
         if (productList is null || !productList.Any())
         {
-            return Results.NoContent();
+            productList = new List<ProductDto>();
         }
 
         return Results.Ok(productList);
